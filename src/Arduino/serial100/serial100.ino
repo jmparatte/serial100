@@ -44,6 +44,21 @@
 // -----------------------------------------------------------------------------
 
 
+constexpr int FACTORIAL(int n)
+{
+    return n <= 1 ? 1 : (n * FACTORIAL(n - 1));
+}
+
+
+constexpr int STRSUM(const char * str, size_t idx=0, int sum=0)
+{
+    return (idx >= strlen(str) ? sum : str[idx] + STRSUM(str, idx+1, sum));
+}
+
+
+// -----------------------------------------------------------------------------
+
+
 /*	REST API - PARSING - EXECUTION
 	==============================
 
@@ -193,8 +208,10 @@ bool rest_parsing_exec() // return OK
 
 	switch(rest_terms_hash[0]) {
 
-		case byte(0):
-		case byte('i'+'n'+'d'+'e'+'x'+'.'+'h'+'t'+'m'+'l'):
+//		case byte(0):
+//		case byte('i'+'n'+'d'+'e'+'x'+'.'+'h'+'t'+'m'+'l'):
+		case byte(STRSUM("")):
+		case byte(STRSUM("index.html")):
 
 			Serial.print( F(
 				"<!DOCTYPE html>\n"
@@ -236,8 +253,10 @@ bool rest_parsing_exec() // return OK
 			) );
 			break;
 
-		case byte('m'+'s'): // /millis
-		case byte('m'+'i'+'l'+'l'+'i'+'s'): // /millis
+//		case byte('m'+'s'): // /millis
+//		case byte('m'+'i'+'l'+'l'+'i'+'s'): // /millis
+		case byte(STRSUM("ms")): // /millis
+		case byte(STRSUM("millis")): // /millis
 
 			if (rest_terms_count==1) {
 				Serial.println(millis());
@@ -247,12 +266,17 @@ bool rest_parsing_exec() // return OK
 			}
 			break;
 
-		case byte('d'): // /digital/<pin> | /digital/<pin>/<state>
-		case byte('d'+'i'+'g'+'i'+'t'+'a'+'l'): // /digital/<pin> | /digital/<pin>/<state>
+//		case byte('d'): // /digital/<pin> | /digital/<pin>/<state>
+//		case byte('d'+'i'+'g'+'i'+'t'+'a'+'l'): // /digital/<pin> | /digital/<pin>/<state>
+		case byte(STRSUM("d")): // /digital/<pin> | /digital/<pin>/<state>
+		case byte(STRSUM("digital")): // /digital/<pin> | /digital/<pin>/<state>
 
-			if (rest_terms_hash[1]==byte('L') ||
-				rest_terms_hash[1]==byte('L'+'E'+'D') ||
-				rest_terms_hash[1]==byte('L'+'E'+'D'+'_'+'B'+'U'+'I'+'L'+'T'+'I'+'N')) rest_terms_long[1] = LED_BUILTIN;
+//			if (rest_terms_hash[1]==byte('L') ||
+//				rest_terms_hash[1]==byte('L'+'E'+'D') ||
+//				rest_terms_hash[1]==byte('L'+'E'+'D'+'_'+'B'+'U'+'I'+'L'+'T'+'I'+'N')) rest_terms_long[1] = LED_BUILTIN;
+			if (rest_terms_hash[1]==byte(STRSUM("L")) ||
+				rest_terms_hash[1]==byte(STRSUM("LED")) ||
+				rest_terms_hash[1]==byte(STRSUM("LED_BUILTIN"))) rest_terms_long[1] = LED_BUILTIN;
 
 			if (rest_terms_count==2) {
 				Serial.println(digitalRead(rest_terms_long[1]));
@@ -266,7 +290,8 @@ bool rest_parsing_exec() // return OK
 			}
 			break;
 
-		case byte('t'+'o'+'n'+'e'): // /tone/<pin>/<freq>/<millis>
+//		case byte('t'+'o'+'n'+'e'): // /tone/<pin>/<freq>/<millis>
+		case byte(STRSUM("tone")): // /tone/<pin>/<freq>/<millis>
 
 			if (rest_terms_count==4) {
 			#ifdef __AVR__
@@ -278,7 +303,8 @@ bool rest_parsing_exec() // return OK
 			}
 			break;
 
-		case byte('l'+'c'+'d'): // /lcd/cls/cur/1/3/ijkl/cur/3/1/mnop
+//		case byte('l'+'c'+'d'): // /lcd/cls/cur/1/3/ijkl/cur/3/1/mnop
+		case byte(STRSUM("lcd")): // /lcd/cls/cur/1/3/ijkl/cur/3/1/mnop
 
 			bool is_writing_text;
 			is_writing_text = false; // when writing texts, insert '/' between texts
@@ -287,13 +313,15 @@ bool rest_parsing_exec() // return OK
 
 				switch(rest_terms_hash[i]) {
 
-					case byte('c'+'l'+'s'): // /cls
+//					case byte('c'+'l'+'s'): // /cls
+					case byte(STRSUM("cls")): // /cls
 						i++;
 						lcd.clear_display();
 						is_writing_text = false;
 						break;
 
-					case byte('c'+'u'+'r'): // /cur/<col>/<row>
+//					case byte('c'+'u'+'r'): // /cur/<col>/<row>
+					case byte(STRSUM("cur")): // /cur/<col>/<row>
 						if ((i+3)>rest_terms_count) break;
 						i++;
 						lcd.set_cursor(rest_terms_long[i+0], rest_terms_long[i+1]);
